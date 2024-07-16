@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Sorting Game</title>
+    <title>經典模式</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,22 +11,137 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            width: 100vw;
             margin: 0;
             background-color: #f0f0f0;
         }
+        .container {
+            background-color: white;
+            padding: 20px;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: block;
+        }
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .title {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .info-text {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .setting {
+            margin-bottom: 15px;
+        }
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .setting-value {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 10px;
+            position: relative;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: white;
+            top: 1px;
+            left: 1px;
+            transition: 0.3s;
+        }
+        .toggle-switch.on {
+            background-color: #1890ff;
+        }
+        .toggle-switch.on::after {
+            left: 21px;
+        }
+        .start-button {
+            background-color: #ffe58f;
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .settings-icon::after {
+            content: '⚙️';
+            font-size: 20px;
+            color: #888;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .dropdown-menu.active {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .dropdown-item {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            padding: 17px 34px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #e0e0e0;
+        }
         .game-container {
             text-align: center;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             border: 40px solid transparent;
+            box-sizing: border-box;
             transition: border-color 0.3s ease;
+            display: none;
+            background-color: white;
         }
         .timer {
+            margin-top: 5%;
             font-size: 48px;
             margin-bottom: 20px;
         }
         .word {
-            font-size: 36px;
+            font-size: 72px;
             margin-bottom: 20px;
         }
         .score {
@@ -34,35 +149,104 @@
             justify-content: space-around;
             font-size: 24px;
         }
-        .back-arrow {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 24px;
-            text-decoration: none;
-            color: #000;
+        .game-over {
+            color: red;
+            font-size: 72px;
+            font-weight: bold;
         }
-        #startButton {
-            font-size: 18px;
-            padding: 10px 20px;
+        .results {
+            font-size: 24px;
             margin-top: 20px;
+        }
+        .result-item {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <a href="#" class="back-arrow">←</a>
-    <div class="game-container">
-        <div class="timer">59</div>
-        <div class="word">電燈</div>
-        <div class="score">
-            <span>⭕ 0</span>
-            <span>❌ 0</span>
+    <div class="container" id="menu-screen">
+        <div class="header">
+            <span class="title">經典模式</span>
         </div>
-        <button id="startButton">Start Game</button>
+        <p class="info-text">如果有任何需要改進的地方可以私訊我們IG或FB，要告白也歡迎(ㅎ⁠_⁠ㅎ)</p>
+        <div class="setting">
+            <div class="setting-label">
+                <span>題庫</span>
+            </div>
+            <div class="setting-value" id="question-bank">
+                台灣特色</span>
+            </div>
+            <div class="dropdown-menu" id="question-bank-menu">
+                <button class="dropdown-item">台灣特色</button>
+                <button class="dropdown-item">7000單</button>
+                <button class="dropdown-item">醫學名詞</button>
+            </div>
+        </div>
+        <div class="setting">
+            <div class="setting-label">
+                <span>時間</span>
+            </div>
+            <div class="setting-value" id="time-limit">
+                <span>180 秒</span>
+            </div>
+            <div class="dropdown-menu" id="time-limit-menu">
+                <button class="dropdown-item">60 秒</button>
+                <button class="dropdown-item">90 秒</button>
+                <button class="dropdown-item">120 秒</button>
+                <button class="dropdown-item">150 秒</button>
+                <button class="dropdown-item">180 秒</button>
+            </div>
+        </div>
+        <button class="start-button" id="start-game-button">開始 ▶</button>
+    </div>
+
+    <div class="game-container" id="game-screen">
+        <div class="timer" id="timer">59</div>
+        <div class="word" id="word">電燈</div>
+        <div class="score">
+            <span id="correct-score">⭕ 0</span>
+            <span id="wrong-score">❌ 0</span>
+        </div>
+        <div class="results" id="results"></div>
     </div>
 
     <script>
-        let timer = 59;
+        function setupDropdown(triggerElementId, menuElementId) {
+            const trigger = document.getElementById(triggerElementId);
+            const menu = document.getElementById(menuElementId);
+
+            trigger.addEventListener('click', () => {
+                menu.classList.toggle('active');
+            });
+
+            menu.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    trigger.textContent = item.textContent;
+                    menu.classList.remove('active');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!trigger.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.remove('active');
+                }
+            });
+        }
+
+        setupDropdown('question-bank', 'question-bank-menu');
+        setupDropdown('time-limit', 'time-limit-menu');
+
+        const startGameButton = document.getElementById('start-game-button');
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameContainer = document.getElementById('game-screen');
+        const timeSetting = document.getElementById('time-limit-menu');
+        let timerElement = document.getElementById('timer');
+        let wordElement = document.getElementById('word');
+        let correctScoreElement = document.getElementById('correct-score');
+        let wrongScoreElement = document.getElementById('wrong-score');
+        let resultsElement = document.getElementById('results');
+        let timer = 180;
         let circleScore = 0;
         let crossScore = 0;
         const words = ['電燈', '電腦', '手機', '書本', '筆記本', '桌子', '椅子', '窗戶', '門', '鞋子'];
@@ -72,24 +256,46 @@
         const updateInterval = 500; // 500ms between updates
         let hasFlippedUp = false;
         let hasFlippedDown = false;
+        let correctAnswers = [];
+        let wrongAnswers = [];
 
-        const gameContainer = document.querySelector('.game-container');
+        timeSetting.addEventListener('click', () => {
+            timer = parseInt(document.getElementById('time-limit').textContent.split(' ')[0]);
+            console.log(timer);
+        });
+
+        startGameButton.addEventListener('click', () => {
+            requestMotionPermission();
+            requestFullScreen();
+            isGameRunning = true;
+            circleScore = 0;
+            crossScore = 0;
+            correctAnswers = [];
+            wrongAnswers = [];
+            hasFlippedUp = false;
+            hasFlippedDown = false;
+            correctScoreElement.textContent = '⭕ 0';
+            wrongScoreElement.textContent = '❌ 0';
+            gameContainer.style.borderColor = 'transparent';
+            resultsElement.innerHTML = '';
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            updateTimer();
+        });
 
         function updateTimer() {
-            document.querySelector('.timer').textContent = timer;
+            timerElement.textContent = timer;
             if (timer > 0 && isGameRunning) {
                 timer--;
                 setTimeout(updateTimer, 1000);
             } else if (timer === 0) {
-                alert('Game Over!');
-                isGameRunning = false;
-                document.getElementById('startButton').style.display = 'block';
+                endGame();
             }
         }
 
         function showNextWord() {
             currentWordIndex = (currentWordIndex + 1) % words.length;
-            document.querySelector('.word').textContent = words[currentWordIndex];
+            wordElement.textContent = words[currentWordIndex];
             gameContainer.style.borderColor = 'transparent';
         }
 
@@ -103,25 +309,26 @@
             const z = event.accelerationIncludingGravity.z;
             if (z > 5 && !hasFlippedUp) {
                 circleScore++;
-                document.querySelector('.score span:first-child').textContent = `⭕ ${circleScore}`;
+                correctAnswers.push(words[currentWordIndex]);
+                correctScoreElement.textContent = `⭕ ${circleScore}`;
                 gameContainer.style.borderColor = '#4CAF50';  // Green border
                 setTimeout(showNextWord, 500);
                 hasFlippedUp = true;
                 hasFlippedDown = false; // Reset the down flip
             } else if (z < -5 && !hasFlippedDown) {
                 crossScore++;
-                document.querySelector('.score span:last-child').textContent = `❌ ${crossScore}`;
+                wrongAnswers.push(words[currentWordIndex]);
+                wrongScoreElement.textContent = `❌ ${crossScore}`;
                 gameContainer.style.borderColor = '#F44336';  // Red border
                 setTimeout(showNextWord, 500);
                 hasFlippedDown = true;
                 hasFlippedUp = false; // Reset the up flip
             }
-
-            // Reset hasFlippedUp and hasFlippedDown after a short delay to allow multiple flips
-            setTimeout(() => {
+            
+            if (z < 5 && z > -5) {
                 hasFlippedUp = false;
                 hasFlippedDown = false;
-            }, 600); // Adjust the delay as needed
+            }
         }
 
         function requestMotionPermission() {
@@ -138,20 +345,32 @@
             }
         }
 
-        document.getElementById('startButton').addEventListener('click', () => {
-            requestMotionPermission();
-            isGameRunning = true;
-            timer = 59;
-            circleScore = 0;
-            crossScore = 0;
-            hasFlippedUp = false;
-            hasFlippedDown = false;
-            document.querySelector('.score span:first-child').textContent = '⭕ 0';
-            document.querySelector('.score span:last-child').textContent = '❌ 0';
-            document.getElementById('startButton').style.display = 'none';
-            gameContainer.style.borderColor = 'transparent';
-            updateTimer();
-        });
+        function requestFullScreen() {
+            if (gameContainer.requestFullscreen) {
+                gameContainer.requestFullscreen();
+            } else if (gameContainer.mozRequestFullScreen) { // Firefox
+                gameContainer.mozRequestFullScreen();
+            } else if (gameContainer.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                gameContainer.webkitRequestFullscreen();
+            } else if (gameContainer.msRequestFullscreen) { // IE/Edge
+                gameContainer.msRequestFullscreen();
+            }
+        }
+
+        function endGame() {
+            isGameRunning = false;
+            wordElement.textContent = '時間到';
+            timerElement.textContent = '時間到';
+            correctScoreElement.textContent = '時間到';
+            wrongScoreElement.textContent = '時間到';
+            wordElement.classList.add('game-over');
+            timerElement.classList.add('game-over');
+            correctScoreElement.classList.add('game-over');
+            wrongScoreElement.classList.add('game-over');
+
+            resultsElement.innerHTML = `<div class="result-item">答對的題目: ${correctAnswers.join(', ')}</div>`;
+            resultsElement.innerHTML += `<div class="result-item">答錯的題目: ${wrongAnswers.join(', ')}</div>`;
+        }
     </script>
 </body>
 </html>
