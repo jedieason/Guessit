@@ -332,8 +332,9 @@
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'block';
             updateTimer();
-            fetchWords(document.getElementById('question-bank').textContent.trim());
-            showNextWord();
+            fetchWordsPromise(document.getElementById('question-bank').textContent.trim())
+                .then(showNextWord)
+                .catch(error => console.error(error));
         });
 
         function updateTimer() {
