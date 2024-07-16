@@ -234,7 +234,6 @@
                 item.addEventListener('click', () => {
                     trigger.textContent = item.textContent;
                     menu.classList.remove('active');
-                    fetchWords(item.textContent); // 加上這一行
                 });
             });
 
@@ -334,6 +333,7 @@
             gameScreen.style.display = 'block';
             updateTimer();
             showNextWord();
+            fetchWords(document.getElementById('question-bank').textContent.trim());
         });
 
         function updateTimer() {
