@@ -332,8 +332,8 @@
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'block';
             updateTimer();
-            showNextWord();
             fetchWords(document.getElementById('question-bank').textContent.trim());
+            showNextWord();
         });
 
         function updateTimer() {
