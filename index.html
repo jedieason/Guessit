@@ -359,10 +359,10 @@
 
         function endGame() {
             isGameRunning = false;
-            wordElement.textContent = '時間到';
+            wordElement.style.display = 'none';
             timerElement.textContent = '時間到';
-            correctScoreElement.textContent = '時間到';
-            wrongScoreElement.textContent = '時間到';
+            correctScoreElement.style.display = 'none';
+            wrongScoreElement.style.display = 'none';
             wordElement.classList.add('game-over');
             timerElement.classList.add('game-over');
             correctScoreElement.classList.add('game-over');
