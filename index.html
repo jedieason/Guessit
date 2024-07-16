@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Sorting Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            border: 5px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        .timer {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .word {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .score {
+            display: flex;
+            justify-content: space-around;
+            font-size: 24px;
+        }
+        .back-arrow {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            text-decoration: none;
+            color: #000;
+        }
+        #startButton {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <a href="#" class="back-arrow">←</a>
+    <div class="game-container">
+        <div class="timer">59</div>
+        <div class="word">電燈</div>
+        <div class="score">
+            <span>⭕ 0</span>
+            <span>❌ 0</span>
+        </div>
+        <button id="startButton">Start Game</button>
+    </div>
+
+    <script>
+        let timer = 59;
+        let circleScore = 0;
+        let crossScore = 0;
+        const words = ['電燈', '電腦', '手機', '書本', '筆記本', '桌子', '椅子', '窗戶', '門', '鞋子'];
+        let currentWordIndex = 0;
+        let isGameRunning = false;
+        let lastUpdate = 0;
+        const updateInterval = 500; // 500ms between updates
+        let hasFlippedUp = false;
+        let hasFlippedDown = false;
+
+        const gameContainer = document.querySelector('.game-container');
+
+        function updateTimer() {
+            document.querySelector('.timer').textContent = timer;
+            if (timer > 0 && isGameRunning) {
+                timer--;
+                setTimeout(updateTimer, 1000);
+            } else if (timer === 0) {
+                alert('Game Over!');
+                isGameRunning = false;
+                document.getElementById('startButton').style.display = 'block';
+            }
+        }
+
+        function showNextWord() {
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            document.querySelector('.word').textContent = words[currentWordIndex];
+            gameContainer.style.borderColor = 'transparent';
+        }
+
+        function handleMotion(event) {
+            if (!isGameRunning) return;
+
+            const now = Date.now();
+            if (now - lastUpdate < updateInterval) return;
+            lastUpdate = now;
+
+            const z = event.accelerationIncludingGravity.z;
+            if (z > 5 && !hasFlippedUp) {
+                circleScore++;
+                document.querySelector('.score span:first-child').textContent = `⭕ ${circleScore}`;
+                gameContainer.style.borderColor = '#4CAF50';  // Green border
+                setTimeout(showNextWord, 500);
+                hasFlippedUp = true;
+                hasFlippedDown = false; // Reset the down flip
+            } else if (z < -5 && !hasFlippedDown) {
+                crossScore++;
+                document.querySelector('.score span:last-child').textContent = `❌ ${crossScore}`;
+                gameContainer.style.borderColor = '#F44336';  // Red border
+                setTimeout(showNextWord, 500);
+                hasFlippedDown = true;
+                hasFlippedUp = false; // Reset the up flip
+            }
+
+            // Reset hasFlippedUp and hasFlippedDown after a short delay to allow multiple flips
+            setTimeout(() => {
+                hasFlippedUp = false;
+                hasFlippedDown = false;
+            }, 600); // Adjust the delay as needed
+        }
+
+        function requestMotionPermission() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('devicemotion', handleMotion);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+            }
+        }
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            requestMotionPermission();
+            isGameRunning = true;
+            timer = 59;
+            circleScore = 0;
+            crossScore = 0;
+            hasFlippedUp = false;
+            hasFlippedDown = false;
+            document.querySelector('.score span:first-child').textContent = '⭕ 0';
+            document.querySelector('.score span:last-child').textContent = '❌ 0';
+            document.getElementById('startButton').style.display = 'none';
+            gameContainer.style.borderColor = 'transparent';
+            updateTimer();
+        });
+    </script>
+</body>
+</html>
