@@ -356,7 +356,6 @@
                 correctAnswers.push(words[currentWordIndex]);
                 correctScoreElement.textContent = `⭕ ${circleScore}`;
                 gameContainer.style.borderColor = '#4CAF50';  // Green border
-                navigator.vibrate(200);
                 setTimeout(showNextWord, 500);
                 hasFlippedUp = true;
                 hasFlippedDown = false; // Reset the down flip
@@ -365,7 +364,6 @@
                 wrongAnswers.push(words[currentWordIndex]);
                 wrongScoreElement.textContent = `❌ ${crossScore}`;
                 gameContainer.style.borderColor = '#F44336';  // Red border
-                navigator.vibrate(200);
                 setTimeout(showNextWord, 500);
                 hasFlippedDown = true;
                 hasFlippedUp = false; // Reset the up flip
