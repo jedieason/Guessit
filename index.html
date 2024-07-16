@@ -234,6 +234,7 @@
                 item.addEventListener('click', () => {
                     trigger.textContent = item.textContent;
                     menu.classList.remove('active');
+                    fetchWords(item.textContent); // 加上這一行
                 });
             });
 
@@ -284,6 +285,7 @@
 
         setupDropdown('question-bank', 'question-bank-menu');
         setupDropdown('time-limit', 'time-limit-menu');
+        fetchWords(document.getElementById('question-bank').textContent.trim());
 
         const startGameButton = document.getElementById('start-game-button');
         const menuScreen = document.getElementById('menu-screen');
@@ -332,9 +334,7 @@
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'block';
             updateTimer();
-            fetchWordsPromise(document.getElementById('question-bank').textContent.trim())
-                .then(showNextWord)
-                .catch(error => console.error(error));
+            showNextWord();
         });
 
         function updateTimer() {
