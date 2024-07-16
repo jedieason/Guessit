@@ -174,10 +174,10 @@
                 <span>題庫</span>
             </div>
             <div class="setting-value" id="question-bank">
-                台灣特色</span>
+                化學專有名詞</span>
             </div>
             <div class="dropdown-menu" id="question-bank-menu">
-                <button class="dropdown-item">台灣特色</button>
+                <button class="dropdown-item">化學專有名詞</button>
                 <button class="dropdown-item">7000單</button>
                 <button class="dropdown-item">醫學名詞</button>
             </div>
@@ -202,7 +202,7 @@
 
     <div class="game-container" id="game-screen">
         <div class="timer" id="timer">59</div>
-        <div class="word" id="word">電燈</div>
+        <div class="word" id="word"></div>
         <div class="score">
             <span id="correct-score">⭕ 0</span>
             <span id="wrong-score">❌ 0</span>
@@ -223,6 +223,7 @@
                 item.addEventListener('click', () => {
                     trigger.textContent = item.textContent;
                     menu.classList.remove('active');
+                    fetchWords(item.textContent); // 加上這一行
                 });
             });
 
@@ -232,6 +233,35 @@
                 }
             });
         }
+
+        function fetchWords(category) {
+            let fileName;
+            switch(category) {
+                case '化學專有名詞':
+                    fileName = 'chemistry_terms.json';
+                    break;
+                case '7000單':
+                    fileName = '7000_words.json';
+                    break;
+                case '醫學名詞':
+                    fileName = 'medical_terms.json';
+                    break;
+                default:
+                    console.error('未知的分類');
+                    return;
+            }
+
+            fetch(fileName)
+                .then(response => response.json())
+                .then(data => {
+                    words = data.words; // 假設 JSON 結構為 { "words": ["word1", "word2", ...] }
+                })
+                .catch(error => {
+                    console.error('讀取 JSON 檔案失敗:', error);
+                });
+        }
+
+
 
         setupDropdown('question-bank', 'question-bank-menu');
         setupDropdown('time-limit', 'time-limit-menu');
@@ -249,7 +279,6 @@
         let timer = 180;
         let circleScore = 0;
         let crossScore = 0;
-        const words = ['電燈', '電腦', '手機', '書本', '筆記本', '桌子', '椅子', '窗戶', '門', '鞋子'];
         let currentWordIndex = 0;
         let isGameRunning = false;
         let lastUpdate = 0;
@@ -258,6 +287,9 @@
         let hasFlippedDown = false;
         let correctAnswers = [];
         let wrongAnswers = [];
+        let words = [];
+        let usedWords = [];
+
 
         timeSetting.addEventListener('click', () => {
             timer = parseInt(document.getElementById('time-limit').textContent.split(' ')[0]);
@@ -294,10 +326,21 @@
         }
 
         function showNextWord() {
-            currentWordIndex = (currentWordIndex + 1) % words.length;
-            wordElement.textContent = words[currentWordIndex];
+            if (words.length === 0) return;
+
+            if (usedWords.length === words.length) {
+                usedWords = []; // 重置已出現過的單字數組
+            }
+
+            let availableWords = words.filter(word => !usedWords.includes(word));
+            let randomIndex = Math.floor(Math.random() * availableWords.length);
+            let nextWord = availableWords[randomIndex];
+
+            usedWords.push(nextWord);
+            wordElement.textContent = nextWord;
             gameContainer.style.borderColor = 'transparent';
         }
+
 
         function handleMotion(event) {
             if (!isGameRunning) return;
